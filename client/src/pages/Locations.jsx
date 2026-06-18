@@ -14,30 +14,39 @@ const Locations = () => {
                 const locationsData = await LocationsAPI.getAllLocations()
                 setLocations(locationsData)
 
-                setVenueNames({venue1: locationsData[0].name, venue2: locationsData[1].name, venue3: locationsData[2].name, venue4: locationsData[3].name})
-                setListeners()
+                setVenueNames({
+                    venue1: locationsData[0].name,
+                    venue2: locationsData[1].name,
+                    venue3: locationsData[2].name,
+                    venue4: locationsData[3].name
+                })
             }
             catch (error) {
-                throw error
+                console.error(error)
             }
         }) ()
     }, [])
 
-    const setListeners = () => {
+    useEffect(() => {
+        if (!venueNames.venue1) return
+
         const polygons = document.querySelectorAll('polygon')
 
         polygons.forEach(element => {
-            element.addEventListener('mouseover', (event) => {
+            const handleMouseover = (event) => {
                 const buttonElement = document.getElementById(`${event.target.id}button`)
-                buttonElement.style.opacity = 1;
-            })
+                if (buttonElement) buttonElement.style.opacity = 1
+            }
 
-            element.addEventListener('mouseleave', (event) => {
+            const handleMouseleave = (event) => {
                 const buttonElement = document.getElementById(`${event.target.id}button`)
-                buttonElement.style.opacity = 0;
-            })
+                if (buttonElement) buttonElement.style.opacity = 0
+            }
+
+            element.addEventListener('mouseover', handleMouseover)
+            element.addEventListener('mouseleave', handleMouseleave)
         })
-    }
+    }, [venueNames])
 
     return (
         <div className='available-locations'>

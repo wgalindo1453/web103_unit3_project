@@ -1,52 +1,60 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import EventsAPI from '../services/EventsAPI'
+import dates from '../utils/dates'
 import '../css/Event.css'
 
 const Event = (props) => {
-
-    const [event, setEvent] = useState([])
-    const [time, setTime] = useState([])
-    const [remaining, setRemaining] = useState([])
+    const [event, setEvent] = useState({})
+    const [time, setTime] = useState('')
+    const [remaining, setRemaining] = useState('')
+    const remainingMsRef = useRef(null)
+    const fetchedAtRef = useRef(null)
 
     useEffect(() => {
         (async () => {
             try {
                 const eventData = await EventsAPI.getEventsById(props.id)
                 setEvent(eventData)
+                remainingMsRef.current = eventData.remaining
+                fetchedAtRef.current = Date.now()
+            } catch (error) {
+                console.error(error)
             }
-            catch (error) {
-                throw error
-            }
-        }) ()
-    }, [])
+        })()
+    }, [props.id])
 
     useEffect(() => {
+        if (!event.time) return
+
         (async () => {
             try {
                 const result = await dates.formatTime(event.time)
                 setTime(result)
+            } catch (error) {
+                console.error(error)
             }
-            catch (error) {
-                throw error
-            }
-        }) ()
-    }, [event])
+        })()
+    }, [event.time])
 
     useEffect(() => {
-        (async () => {
-            try {
-                const timeRemaining = await dates.formatRemainingTime(event.remaining)
-                setRemaining(timeRemaining)
-                dates.formatNegativeTimeRemaining(remaining, event.id)
-            }
-            catch (error) {
-                throw error
-            }
-        }) ()
-    }, [event])
+        if (remainingMsRef.current === null) return
+
+        const updateRemaining = async () => {
+            const elapsed = Date.now() - fetchedAtRef.current
+            const currentRemaining = remainingMsRef.current - elapsed
+            const timeRemaining = await dates.formatRemainingTime(currentRemaining)
+            setRemaining(timeRemaining)
+            dates.formatNegativeTimeRemaining(timeRemaining, event.id)
+        }
+
+        updateRemaining()
+        const interval = setInterval(updateRemaining, 1000)
+        return () => clearInterval(interval)
+    }, [event.id, event.remaining])
 
     return (
         <article className='event-information'>
-            <img src={event.image} />
+            <img src={event.image} alt={event.title} />
 
             <div className='event-information-overlay'>
                 <div className='text'>

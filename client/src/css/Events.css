@@ -1,0 +1,38 @@
+.events-page {
+    width: 100%;
+    padding: 20px;
+}
+
+.events-controls {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.events-controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: white;
+    font-weight: 600;
+}
+
+.events-controls select {
+    min-width: 200px;
+}
+
+.events-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 20px;
+}
+
+.events-list h2 {
+    color: white;
+    width: 100%;
+    text-align: center;
+}
